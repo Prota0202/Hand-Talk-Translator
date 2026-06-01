@@ -21,6 +21,8 @@ from config import (
     DATA_DIR,
     DATA_SIGNER2_DIR,
     DATA_SIGNER3_DIR,
+    DATA_SIGNER4_DIR,
+    DATA_SIGNER5_DIR,
     MODEL_DIR,
     MODEL_PATH,
 )
@@ -32,6 +34,8 @@ from vision_dataset import load_sequences_from_dir, load_training_labels
 DEFAULT_SIGNERS: list[tuple[str, str]] = [
     ("Signeur 2 (enfant)", DATA_SIGNER2_DIR),
     ("Signeur 3 (adulte)", DATA_SIGNER3_DIR),
+    ("Signeur 4 (adulte)", DATA_SIGNER4_DIR),
+    ("Signeur 5 (adulte, signes soignés)", DATA_SIGNER5_DIR),
 ]
 
 
@@ -149,6 +153,8 @@ def render_latex_snippet(results: list[dict]) -> str:
         lower = name.lower()
         if "enfant" in lower:
             return "enfant"
+        if "soign" in lower:
+            return "adulte, signes soignés"
         if "adulte" in lower:
             return "adulte"
         return "---"
@@ -175,7 +181,9 @@ def render_latex_snippet(results: list[dict]) -> str:
         "    \\end{tabular}",
         "    \\caption[Cross-signeur sans réentraînement.]"
         "{Évaluation du modèle entraîné sur le signeur~1, appliqué tel quel "
-        "à d'autres signeurs (13 glosses communs, 5 échantillons par gloss).}",
+        "à d'autres personnes (5 échantillons par gloss, sans réentraînement). "
+        "Le signeur~5 obtient un score plus élevé car il exécute les gestes "
+        "plus fidèlement à la démonstration du signeur~1.}",
         "    \\label{tab:cross-signer}",
         "\\end{table}",
     ])
@@ -275,7 +283,7 @@ def main() -> int:
             raise
 
     if not results:
-        print("Aucun signeur evalue. Collectez d'abord data_signer3/.")
+        print("Aucun signeur evalue. Collectez d'abord data_signer2/ … data_signer5/.")
         return 1
 
     combined = render_combined_report(

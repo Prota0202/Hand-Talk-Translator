@@ -9,6 +9,7 @@ import numpy as np
 import torch
 
 from config import (
+    COLLECTION,
     LABELS_PATH,
     MODEL_PATH,
     MOTION,
@@ -17,6 +18,7 @@ from config import (
 )
 from feature_extractor import FeatureExtractor
 from model import GestureLSTM
+from sequence_utils import resample_sequence
 
 
 class GestureRecognizer:
@@ -36,7 +38,7 @@ class GestureRecognizer:
             self.labels: list[str] = json.load(fh)
 
         self.extractor = FeatureExtractor()
-        self.frame_buffer: list[np.ndarray] = []
+        self._segment: list[np.ndarray] = []
         self.pred_buffer: list[str] = []
         self.pred_buf_size = RECOGNITION["prediction_buffer"]
         self.threshold = RECOGNITION["confidence_threshold"]
@@ -57,7 +59,8 @@ class GestureRecognizer:
 
     @property
     def buffer_fill(self) -> float:
-        return len(self.frame_buffer) / SEQUENCE_LENGTH
+        need = COLLECTION["min_frames"]
+        return min(len(self._segment), need) / need
 
     def process_result(self, result):
         """Feed one frame and return ``(gesture_name, confidence, motion, accepted)``."""
@@ -65,20 +68,21 @@ class GestureRecognizer:
             self._missing_frames += 1
             if self._missing_frames >= RECOGNITION["missing_frames_reset"]:
                 self.reset()
-                self.extractor.reset()
             return None, 0.0, 0.0, False
 
         self._missing_frames = 0
         features, motion = self.extractor.extract_from_result(result)
-        self.frame_buffer.append(features)
-        if len(self.frame_buffer) > SEQUENCE_LENGTH:
-            self.frame_buffer.pop(0)
-        if len(self.frame_buffer) < SEQUENCE_LENGTH:
+        self._segment.append(features)
+        max_frames = COLLECTION["max_frames"]
+        if len(self._segment) > max_frames:
+            self._segment = self._segment[-max_frames:]
+
+        if len(self._segment) < COLLECTION["min_frames"]:
             return None, 0.0, motion, False
 
-        seq = torch.tensor(
-            np.array(self.frame_buffer, dtype=np.float32)
-        ).unsqueeze(0)
+        # Même pipeline que collect_data : séquence variable → resample 30 frames
+        seq_arr = resample_sequence(np.array(self._segment, dtype=np.float32), SEQUENCE_LENGTH)
+        seq = torch.tensor(seq_arr).unsqueeze(0)
 
         with torch.no_grad():
             logits = self.model(seq)
@@ -89,15 +93,12 @@ class GestureRecognizer:
         name = self.labels[idx]
         self.last_probs = {self.labels[i]: float(probs[i]) for i in range(len(self.labels))}
 
-        # Entropy-based rejection: high entropy = uncertain = not a known sign
-        # Max entropy for N classes = log(N). We reject above 40% of max entropy.
         n = len(self.labels)
         entropy = -sum(float(p) * math.log(float(p) + 1e-9) for p in probs)
         max_entropy = math.log(n)
         if entropy > 0.2 * max_entropy:
             return None, 0.0, motion, False
 
-        # temporal smoothing
         self.pred_buffer.append(name)
         if len(self.pred_buffer) > self.pred_buf_size:
             self.pred_buffer.pop(0)
@@ -106,7 +107,6 @@ class GestureRecognizer:
         top, count = counter.most_common(1)[0]
         smoothed = count / len(self.pred_buffer)
 
-        # motion gating (for dynamic gestures)
         if motion >= MOTION["activation"]:
             self._motion_count = min(self._motion_count + 1, MOTION["frames_required"])
         elif motion <= MOTION["release"]:
@@ -136,9 +136,10 @@ class GestureRecognizer:
         return False
 
     def reset(self):
-        self.frame_buffer.clear()
+        self._segment.clear()
         self.pred_buffer.clear()
         self._last_gesture = None
         self._missing_frames = 0
         self.motion_active = False
         self._motion_count = 0
+        self.extractor.reset()

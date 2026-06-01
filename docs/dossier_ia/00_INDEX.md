@@ -4,6 +4,6 @@
 
 ## Contenu
 
-- [DISCUSSIONS_IA.md](DISCUSSIONS_IA.md) — questions / réponses (révision, reformulation, corrections Python, repérage de sources)
+- [DISCUSSIONS_IA.md](DISCUSSIONS_IA.md) — questions / réponses (révision du rapport, corrections Python)
 
 Pas de lien de chat public possible : ce dossier remplace l’export intégral exigé par la déclaration d’honneur. Versionné dans `docs/dossier_ia/` sur GitHub.

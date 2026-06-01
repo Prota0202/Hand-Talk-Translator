@@ -16,17 +16,38 @@ else:
 DATA_DIR = os.path.join(BASE_DIR, "data")
 DATA_SIGNER2_DIR = os.path.join(BASE_DIR, "data_signer2")
 DATA_SIGNER3_DIR = os.path.join(BASE_DIR, "data_signer3")
+DATA_SIGNER4_DIR = os.path.join(BASE_DIR, "data_signer4")
+DATA_SIGNER5_DIR = os.path.join(BASE_DIR, "data_signer5")
 
-# Protocole signeur 2 (enfant) : 13 glosses × 5 échantillons.
+# Glosses vision interdits : pas de classe LSTM (l'âge = MOI + chiffres, ex. MOI 2 4).
+EXCLUDED_VISION_LABELS = frozenset({"ans", "mon age", "mon âge"})
+
+# Noms français parfois saisis par erreur à la place des glosses LSF.
+GLOSS_ALIASES: dict[str, str] = {
+    "je": "MOI",
+    "m'appelle": "NOM",
+    "appelle": "NOM",
+    "bonjour": "BONJOUR",
+    "étudiant": "ETUDIANT",
+    "etudiant": "ETUDIANT",
+}
+
+# Protocole signeur 2 (enfant) : 12 glosses × 5 échantillons.
 CROSS_SIGNER_EVAL_SIGNS = [
-    "MOI", "NOM", "Bonjour", "2", "4", "ans", "ETUDIANT",
+    "MOI", "NOM", "Bonjour", "2", "4", "ETUDIANT",
     "A", "B", "D", "E", "L", "I",
 ]
 
-# Protocole signeur 3 (adulte) : mots + chiffres, sans alphabet.
+# Protocole signeur 3 (adulte) : mots + chiffres, sans alphabet ni ans.
 CROSS_SIGNER3_SIGNS = [
-    "MOI", "NOM", "Bonjour", "2", "4", "ans", "ETUDIANT",
+    "MOI", "NOM", "Bonjour", "2", "4", "ETUDIANT",
 ]
+
+# Protocole signeur 4 : meme base que signeur 3 (7 glosses × 5 échantillons).
+CROSS_SIGNER4_SIGNS = list(CROSS_SIGNER3_SIGNS)
+
+# Protocole signeur 5 : identique (7 glosses × 5 échantillons).
+CROSS_SIGNER5_SIGNS = list(CROSS_SIGNER3_SIGNS)
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 MODEL_PATH = os.path.join(MODEL_DIR, "gesture_model.pth")
 LABELS_PATH = os.path.join(MODEL_DIR, "labels.json")
@@ -112,7 +133,7 @@ MOTION = {
 # Signs use LSF gloss names (uppercase in the translator).
 # The lsf_translator module converts LSF grammar → French automatically.
 
-# ── Motion-based spelling toggle (up-down nod) ───────────────────────────────
+# ── Motion-based nod (vertical) → translate + TTS in main.py ────────────────
 MOTION_SPELL = {
     "window_size": 12,
     "min_vertical": 0.08,
@@ -208,8 +229,8 @@ FINISH_GESTURE = {
 # ── Recommended vocabulary for data collection ───────────────────────────────
 RECOMMENDED_SIGNS = [
     # ── Phrase demo ──────────────────────────────────────────────────────
-    # MOI NOM ABDELBADI | MOI 24 ANS | MOI ETUDIANT ECAM | ICI PROJET FIN ETUDES
-    "MOI", "NOM", "ABDELBADI", "24", "ANS",
+    # MOI NOM ABDELBADI | MOI 2 4 (→ 24 ans) | MOI ETUDIANT ECAM | ICI PROJET FIN ETUDES
+    "MOI", "NOM", "ABDELBADI", "2", "4",
     "ETUDIANT", "ECAM", "ICI", "PROJET", "FIN", "ETUDES",
     # ── LSF courant ──────────────────────────────────────────────────────
     "BONJOUR", "AU-REVOIR", "MERCI", "OUI", "NON",
@@ -224,3 +245,17 @@ RECOMMENDED_SIGNS = [
     "J", "K", "L", "M", "N", "O", "P", "Q", "R",
     "S", "T", "U", "V", "W", "X", "Y", "Z",
 ]
+
+
+def canonical_gloss(name: str) -> str:
+    """Normalise un nom de signe en gloss LSF (nom de dossier dans data/)."""
+    stripped = name.strip()
+    if not stripped:
+        return stripped
+    alias = GLOSS_ALIASES.get(stripped.lower())
+    if alias is not None:
+        return alias
+    for gloss in RECOMMENDED_SIGNS:
+        if gloss.lower() == stripped.lower():
+            return gloss
+    return stripped

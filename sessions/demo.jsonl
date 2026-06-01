@@ -19,8 +19,7 @@
 {"ts": "2026-04-19T21:00:15.500", "type": "sign", "text": "MOI"}
 {"ts": "2026-04-19T21:00:16.200", "type": "sign", "text": "2"}
 {"ts": "2026-04-19T21:00:16.700", "type": "sign", "text": "4"}
-{"ts": "2026-04-19T21:00:17.200", "type": "sign", "text": "ans"}
-{"ts": "2026-04-19T21:00:18.500", "type": "phrase", "lsf": "MOI 2 4 ans", "fr": "J'ai 24 ans."}
+{"ts": "2026-04-19T21:00:18.500", "type": "phrase", "lsf": "MOI 2 4", "fr": "J'ai 24 ans."}
 {"ts": "2026-04-19T21:00:20.500", "type": "sign", "text": "Aujourd'hui"}
 {"ts": "2026-04-19T21:00:21.500", "type": "sign", "text": "MOI"}
 {"ts": "2026-04-19T21:00:22.200", "type": "sign", "text": "PRESENT"}

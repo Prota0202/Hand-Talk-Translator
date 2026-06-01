@@ -28,6 +28,7 @@ from torch.utils.data import DataLoader, TensorDataset
 
 from config import (
     DATA_DIR,
+    EXCLUDED_VISION_LABELS,
     FEATURES_PER_FRAME,
     INCLUDE_VELOCITY,
     LABELS_PATH,
@@ -58,7 +59,9 @@ def _load_dataset():
     for d in all_dirs:
         folder = os.path.join(DATA_DIR, d)
         n_npy = sum(1 for f in os.listdir(folder) if f.endswith(".npy"))
-        if n_npy > 0:
+        if d in EXCLUDED_VISION_LABELS:
+            print(f"  IGNORE {d!r} — classe exclue (config)")
+        elif n_npy > 0:
             labels.append(d)
         else:
             print(f"  IGNORE {d!r} — dossier vide (0 fichiers .npy)")

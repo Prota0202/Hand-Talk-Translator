@@ -77,17 +77,17 @@ class TestIntroductions:
 
 class TestAge:
     def test_simple_age(self):
-        assert translate(["MOI", "24", "ANS"]) == "J'ai 24 ans."
+        assert translate(["MOI", "24"]) == "J'ai 24 ans."
 
     def test_age_with_split_digits(self):
         # 2 + 4 must be merged into "24" before the rule fires.
-        assert translate(["MOI", "2", "4", "ANS"]) == "J'ai 24 ans."
+        assert translate(["MOI", "2", "4"]) == "J'ai 24 ans."
 
     def test_age_question(self):
         assert translate(["TOI", "AGE", "QUOI"]) == "Tu as quel âge ?"
 
     def test_toi_age(self):
-        assert translate(["TOI", "30", "ANS"]) == "Tu as 30 ans."
+        assert translate(["TOI", "30"]) == "Tu as 30 ans."
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -114,6 +114,10 @@ class TestProject:
     def test_projet_fin_etudes_alone(self):
         assert translate(["PROJET", "FIN", "ETUDES"]) \
             == "Mon projet de fin d'études."
+
+    def test_presentation_project_phrase(self):
+        assert translate(["AUJOURD'HUI", "MOI", "PRESENT", "ICI", "PROJET"]) \
+            == "Aujourd'hui, je vous présente mon projet."
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -362,7 +366,7 @@ class TestDemoPhrase:
             "Bonjour", "MOI", "NOM",
             "A", "B", "D", "E", "L", "B", "A", "D", "I",
             "MOI", "ETUDIANT",
-            "MOI", "2", "4", "ans",
+            "MOI", "2", "4",
             "Aujourd'hui",
             "MOI", "MOI",
         ]

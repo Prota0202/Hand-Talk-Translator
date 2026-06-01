@@ -8,7 +8,7 @@ from typing import Optional
 
 import numpy as np
 
-from config import FEATURES_PER_FRAME, LABELS_PATH, SEQUENCE_LENGTH
+from config import EXCLUDED_VISION_LABELS, FEATURES_PER_FRAME, LABELS_PATH, SEQUENCE_LENGTH
 
 
 def load_training_labels(labels_path: str = LABELS_PATH) -> list[str]:
@@ -63,6 +63,8 @@ def load_sequences_from_dir(
     unknown_folders: list[str] = []
 
     for folder_name in candidate_dirs:
+        if folder_name.lower() in {x.lower() for x in EXCLUDED_VISION_LABELS}:
+            continue
         label_idx = resolve_label_index(folder_name, labels)
         if label_idx is None:
             folder = os.path.join(data_dir, folder_name)

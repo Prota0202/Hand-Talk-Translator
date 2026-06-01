@@ -45,6 +45,7 @@ from sklearn.model_selection import train_test_split
 
 from config import (
     DATA_DIR,
+    EXCLUDED_VISION_LABELS,
     FEATURES_PER_FRAME,
     LABELS_PATH,
     MODEL_DIR,
@@ -72,6 +73,8 @@ def load_dataset_raw():
     )
     labels: list[str] = []
     for d in candidate_dirs:
+        if d in EXCLUDED_VISION_LABELS:
+            continue
         folder = os.path.join(DATA_DIR, d)
         if any(f.endswith(".npy") for f in os.listdir(folder)):
             labels.append(d)

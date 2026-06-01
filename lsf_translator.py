@@ -40,14 +40,11 @@ _RULES: list[tuple[str, str]] = [
     (r"^OUI$", "Oui"),
     (r"^NON$", "Non"),
 
-    # ── Age ──────────────────────────────────────────────────────────────
-    (r"BONJOUR MOI MON AGE (\d+)(?: ANS)?", r"Bonjour, j'ai \1 ans"),
-    (r"BONJOUR MOI AGE (\d+)(?: ANS)?", r"Bonjour, j'ai \1 ans"),
-    (r"MOI MON AGE (\d+)(?: ANS)?", r"J'ai \1 ans"),
-    (r"MOI AGE (\d+)(?: ANS)?", r"J'ai \1 ans"),
+    # ── Age (chiffres seuls après MOI/TOI — pas de gloss vision « ans ») ─
+    (r"^BONJOUR MOI (\d+)$", r"Bonjour, j'ai \1 ans"),
+    (r"^MOI (\d+)$", r"J'ai \1 ans"),
+    (r"^TOI (\d+)$", r"Tu as \1 ans"),
     (r"MOI (\d+) ANS", r"J'ai \1 ans"),
-    (r"TOI MON AGE (\d+)(?: ANS)?", r"Tu as \1 ans"),
-    (r"TOI AGE (\d+)(?: ANS)?", r"Tu as \1 ans"),
     (r"TOI (\d+) ANS", r"Tu as \1 ans"),
 
     # ── Studies / profession ──────────────────────────────────────────────
@@ -56,7 +53,13 @@ _RULES: list[tuple[str, str]] = [
     (r"MOI TRAVAILLER (.+)", r"Je travaille à \1"),
     (r"MOI TRAVAILLER", "Je travaille"),
 
-    # ── Project ──────────────────────────────────────────────────────────
+    # ── Project / presentation ───────────────────────────────────────────
+    (r"^AUJOURD'HUI MOI PRESENT ICI PROJET$",
+     "Aujourd'hui, je vous présente mon projet"),
+    (r"^MOI PRESENT ICI PROJET FIN ETUDES$",
+     "Je vous présente mon projet de fin d'études"),
+    (r"^MOI PRESENT ICI PROJET$", "Je vous présente mon projet"),
+    (r"^MOI PRESENT$", "Je vous présente"),
     (r"ICI PROJET FIN ETUDES", "Voici mon projet de fin d'études"),
     (r"ICI PROJET (.+)", r"Voici mon projet \1"),
     (r"ICI (.+)", r"Voici \1"),
@@ -160,8 +163,8 @@ def _auto_split(glosses: list[str]) -> list[list[str]]:
     appears after at least one token has already been accumulated —
     except when MOI immediately follows BONJOUR (same proposition).
 
-    e.g. ["BONJOUR","MOI","NOM","ABDEL","MOI","mon age","24","ANS"]
-      →  [["BONJOUR","MOI","NOM","ABDEL"], ["MOI","mon age","24","ANS"]]
+    e.g. ["BONJOUR","MOI","NOM","ABDEL","MOI","2","4"]
+      →  [["BONJOUR","MOI","NOM","ABDEL"], ["MOI","2","4"]]
     """
     if not glosses:
         return []
@@ -234,7 +237,6 @@ _WORD_MAP = {
     "BESOIN": "besoin",
     "HABITER": "habite",
     "AGE": "âge",
-    "MON AGE": "âge",
     "AUJOURD'HUI": "aujourd'hui",
     "HIER": "hier",
     "DEMAIN": "demain",
@@ -378,12 +380,16 @@ def _dedupe_consecutive(glosses: list[str]) -> list[str]:
     return out
 
 
+from config import canonical_gloss
+
+
 def translate(glosses: list[str]) -> str:
     """Translate a list of LSF glosses into a French sentence.
 
     Explicit pauses ("|") and subject pivots (MOI, TOI, ICI…) both
     act as proposition boundaries — no manual pause needed.
     """
+    glosses = [canonical_gloss(g) for g in glosses if g.strip()]
     glosses = _dedupe_consecutive(glosses)
     # 1. Split at explicit pauses first
     pause_segments = _split_segments(glosses)

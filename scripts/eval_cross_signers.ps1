@@ -1,4 +1,4 @@
-# Evaluation cross-signeur (signeur 2 enfant + signeur 3 adulte)
+# Evaluation cross-signeur (signeurs 2–5)
 # Usage : .\scripts\eval_cross_signers.ps1
 
 $ErrorActionPreference = "Stop"

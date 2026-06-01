@@ -38,6 +38,11 @@ sessions/*.jsonl
 session_*.txt
 recording_*.mp4
 
+# Cross-signer archives (prepare_signer3/4.ps1 -Fresh)
+data_signer3_archive_*/
+data_signer4_archive_*/
+data_signer5_archive_*/
+
 # ── IDE / OS ------------------------------------------------------------
 .idea/
 .vscode/

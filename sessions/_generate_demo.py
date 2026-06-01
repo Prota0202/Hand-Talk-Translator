@@ -61,9 +61,8 @@ EVENTS = [
     (15.5, {"type": "sign",   "text": "MOI"}),
     (16.2, {"type": "sign",   "text": "2"}),
     (16.7, {"type": "sign",   "text": "4"}),
-    (17.2, {"type": "sign",   "text": "ans"}),
     (18.5, {"type": "phrase",
-            "lsf": "MOI 2 4 ans",
+            "lsf": "MOI 2 4",
             "fr":  "J'ai 24 ans."}),
 
     # "Aujourd'hui je présente."

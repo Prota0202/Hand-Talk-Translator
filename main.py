@@ -186,6 +186,7 @@ def main():
     from hand_detector import HandDetector
     from lsf_translator import translate
     from motion_pause_detector import MotionPauseDetector
+    from motion_spell_detector import MotionSpellDetector
     from sentence_builder import SentenceBuilder
     from speech_engine import SpeechEngine
     from speech_listener import SpeechListener
@@ -201,6 +202,16 @@ def main():
     sentence = SentenceBuilder()
     ui = UIRenderer(sign_labels=recognizer.labels)
     pause_motion = MotionPauseDetector()
+    nod_speak = MotionSpellDetector()
+
+    def _read_phrase_aloud() -> None:
+        """Translate current glosses and send them to TTS."""
+        if sentence.is_empty:
+            return
+        french = translate(sentence.tokens)
+        print(f"  LSF:     {sentence.gloss}")
+        print(f"  Francais: {french}")
+        _speak(french)
 
     # ── Bidirectional: microphone listener ───────────────────────────────
     listener = SpeechListener(language="fr-FR")
@@ -294,6 +305,7 @@ def main():
     print("  [L]           Afficher / masquer le panneau de latence")
     print("  [E]           Exporter la conversation en .txt")
     print("  [Espace]      Traduire et prononcer la phrase")
+    print("  Hochement     Traduire et lire la phrase (voix)")
     print("  [Retour arr.] Supprimer le dernier signe")
     print("  [Entree]      Effacer la phrase")
     if replay is not None:
@@ -395,6 +407,7 @@ def main():
                     elif pause_available and gesture == PAUSE_LABEL:
                         sentence.add_pause()
                         ui.add_history("| PAUSE")
+                        committed = True
                     else:
                         if recognizer.motion_active or not MOTION.get("require_active", False):
                             sentence.add(gesture)
@@ -405,7 +418,9 @@ def main():
                             french_now = translate(sentence.tokens)
                             if french_now:
                                 _speak(french_now)
-                    committed = True
+                        committed = True
+                    if committed:
+                        recognizer.reset()
             else:
                 # ── Replay path: events drive the state, not the model ────
                 # Show a smooth "fake" prediction in the gauge UI so the jury
@@ -460,10 +475,7 @@ def main():
                     last_finish_ts = time.time()
                     finish_count = 0
                     if not sentence.is_empty:
-                        french = translate(sentence.tokens)
-                        print(f"  LSF:     {sentence.gloss}")
-                        print(f"  Francais: {french}")
-                        _speak(french)
+                        _read_phrase_aloud()
 
             # Motion-based Pause gesture (shake left-right) — skipped in replay
             if replay is None and pause_motion.update(
@@ -471,6 +483,14 @@ def main():
             ):
                 sentence.add_pause()
                 ui.add_history("| PAUSE")
+
+            # Nod (vertical wrist motion) → translate + TTS — skipped in replay
+            if replay is None and nod_speak.update(
+                results.hand_landmarks[0] if results.hand_landmarks else None, time.time()
+            ):
+                if not sentence.is_empty:
+                    _read_phrase_aloud()
+                    ui.add_history("LECTURE VOIX")
 
             # ── Microphone transcription (hearing person → deaf person) ──
             if listen_mode:

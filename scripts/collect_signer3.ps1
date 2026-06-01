@@ -1,4 +1,4 @@
-# Collecte signeur 3 (adulte) - reprise automatique des signes manquants
+# Collecte signeur 3 (adulte) — protocole cross-signeur
 # Usage : .\scripts\collect_signer3.ps1
 
 $ErrorActionPreference = "Stop"
@@ -15,21 +15,16 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  COLLECTE SIGNEUR 3 (ADULTE)" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  Protocole : 7 glosses (mots + chiffres, sans alphabet)"
-Write-Host "  Mode      : reprise - seulement ce qui manque"
-Write-Host "  Dossier   : data_signer3\"
-Write-Host ""
-Write-Host "  Deja fait : MOI, NOM, Bonjour, 2, 4"
-Write-Host "  Reste     : ans, ETUDIANT"
+
+& $Py scripts/prepare_signer3_status.py
+
 Write-Host ""
 Write-Host "  CONSEILS :"
 Write-Host "  - Face a la webcam, mains bien visibles"
 Write-Host "  - Maintenir chaque signe ~1 seconde, retirer la main entre deux"
 Write-Host "  - Q pour quitter"
 Write-Host ""
-Read-Host "Appuyez sur Entree quand l adulte est pret"
-
-New-Item -ItemType Directory -Force -Path (Join-Path $Root "data_signer3") | Out-Null
+Read-Host "Appuyez sur Entree quand le signeur est pret"
 
 & $Py collect_data.py `
     --data-dir data_signer3 `

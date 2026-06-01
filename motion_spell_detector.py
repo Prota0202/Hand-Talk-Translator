@@ -1,4 +1,4 @@
-"""Detects a 'Spell' toggle gesture based on vertical hand motion (nod)."""
+"""Detects a vertical wrist nod used to trigger phrase read-out (TTS)."""
 
 from collections import deque
 
@@ -6,14 +6,14 @@ from config import MOTION_SPELL
 
 
 class MotionSpellDetector:
-    """Detect an up-down nod of the wrist to toggle spelling mode."""
+    """Detect an up-down nod of the wrist (head-nod proxy)."""
 
     def __init__(self):
         self._positions = deque(maxlen=MOTION_SPELL["window_size"])
         self._last_trigger_ts = 0.0
 
     def update(self, hand_landmarks, ts: float) -> bool:
-        """Update motion buffer and return True when a spell toggle is detected."""
+        """Update motion buffer and return True when a nod is detected."""
         if hand_landmarks is None:
             self._positions.clear()
             return False

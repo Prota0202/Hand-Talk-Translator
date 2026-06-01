@@ -1,20 +1,30 @@
 Signeur 3 — adulte (cross-signeur)
 ==================================
 
-Protocole (7 glosses, sans alphabet) :
-  MOI, NOM, Bonjour, 2, 4, ans, ETUDIANT
-  5 echantillons par gloss | mode AUTO
+Qui : une 3e personne (pas toi, pas le signeur 2 enfant).
+Le modele n'est PAS reentraine : on mesure si ton LSTM signeur 1
+generalise chez quelqu'un d'autre.
 
-Deja collecte : MOI, NOM, Bonjour, 2, 4
-Reste a faire  : ans, ETUDIANT
+Protocole (6 glosses, sans alphabet) :
+  MOI, NOM, Bonjour, 2, 4, ETUDIANT
+  5 echantillons par gloss | mode AUTO (~1 s par signe)
 
-Reprendre la collecte :
+--- Preparation du dossier ---
+
+  .\scripts\prepare_signer3.ps1
+
+  Nouvelle personne / tout effacer et recommencer :
+  .\scripts\prepare_signer3.ps1 -Fresh
+
+--- Collecte ---
+
   .\scripts\collect_signer3.ps1
 
-Ou manuellement :
+  Ou :
   python collect_data.py --data-dir data_signer3 --signer3 --resume --samples 5 --auto
 
-Apres la collecte :
+--- Evaluation ---
+
   .\scripts\eval_cross_signers.ps1
 
-Le modele n'est PAS reentraine : on teste la generalisation du signeur 1.
+  Rapports : models\cross_signer_report.md
