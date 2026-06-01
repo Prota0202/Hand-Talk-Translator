@@ -1,0 +1,46 @@
+# ── Python --------------------------------------------------------------
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# ── Virtual environments ------------------------------------------------
+venv/
+venv-release/
+
+# ── Markdown (sauf dossier IA public) -----------------------------------
+docs/*.md
+!docs/dossier_ia/
+!docs/dossier_ia/**
+models/*.md
+packaging/*.md
+
+# ── LaTeX build artifacts (sources in archive privée) -----------------
+docs/*.pdf
+docs/*.aux
+docs/*.log
+docs/*.toc
+docs/*.out
+docs/*.lof
+docs/*.lot
+
+# ── PyInstaller artifacts -----------------------------------------------
+build/
+dist/
+*.spec.bak
+
+# ── Project runtime data ------------------------------------------------
+sessions/*.jsonl
+!sessions/demo.jsonl
+!sessions/_generate_demo.py
+
+# Local recordings (camera + voice exports)
+session_*.txt
+recording_*.mp4
+
+# ── IDE / OS ------------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+Thumbs.db
+.DS_Store

@@ -1,0 +1,28 @@
+{"ts": "2026-04-19T21:00:00.000", "type": "event", "name": "session_start"}
+{"ts": "2026-04-19T21:00:00.100", "type": "event", "name": "session_start_args", "debug": false, "listen": false}
+{"ts": "2026-04-19T21:00:01.500", "type": "sign", "text": "Bonjour"}
+{"ts": "2026-04-19T21:00:02.600", "type": "sign", "text": "MOI"}
+{"ts": "2026-04-19T21:00:03.400", "type": "sign", "text": "NOM"}
+{"ts": "2026-04-19T21:00:04.100", "type": "sign", "text": "A"}
+{"ts": "2026-04-19T21:00:04.600", "type": "sign", "text": "B"}
+{"ts": "2026-04-19T21:00:05.100", "type": "sign", "text": "D"}
+{"ts": "2026-04-19T21:00:05.600", "type": "sign", "text": "E"}
+{"ts": "2026-04-19T21:00:06.100", "type": "sign", "text": "L"}
+{"ts": "2026-04-19T21:00:06.600", "type": "sign", "text": "B"}
+{"ts": "2026-04-19T21:00:07.100", "type": "sign", "text": "A"}
+{"ts": "2026-04-19T21:00:07.600", "type": "sign", "text": "D"}
+{"ts": "2026-04-19T21:00:08.100", "type": "sign", "text": "I"}
+{"ts": "2026-04-19T21:00:09.000", "type": "phrase", "lsf": "Bonjour MOI NOM A B D E L B A D I", "fr": "Bonjour, je m'appelle Abdelbadi."}
+{"ts": "2026-04-19T21:00:11.500", "type": "sign", "text": "MOI"}
+{"ts": "2026-04-19T21:00:12.300", "type": "sign", "text": "ETUDIANT"}
+{"ts": "2026-04-19T21:00:13.500", "type": "phrase", "lsf": "MOI ETUDIANT", "fr": "Je suis étudiant."}
+{"ts": "2026-04-19T21:00:15.500", "type": "sign", "text": "MOI"}
+{"ts": "2026-04-19T21:00:16.200", "type": "sign", "text": "2"}
+{"ts": "2026-04-19T21:00:16.700", "type": "sign", "text": "4"}
+{"ts": "2026-04-19T21:00:17.200", "type": "sign", "text": "ans"}
+{"ts": "2026-04-19T21:00:18.500", "type": "phrase", "lsf": "MOI 2 4 ans", "fr": "J'ai 24 ans."}
+{"ts": "2026-04-19T21:00:20.500", "type": "sign", "text": "Aujourd'hui"}
+{"ts": "2026-04-19T21:00:21.500", "type": "sign", "text": "MOI"}
+{"ts": "2026-04-19T21:00:22.200", "type": "sign", "text": "PRESENT"}
+{"ts": "2026-04-19T21:00:23.500", "type": "phrase", "lsf": "Aujourd'hui MOI PRESENT", "fr": "Aujourd'hui je présente."}
+{"ts": "2026-04-19T21:00:24.500", "type": "event", "name": "session_end"}

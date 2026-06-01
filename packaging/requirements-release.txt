@@ -1,0 +1,25 @@
+# Minimal runtime deps for the standalone .exe build.
+# Excludes:
+#   - sklearn / matplotlib (training-only) -> still pulled by mediapipe but
+#     we let pip resolve transitively, no need to pin
+#   - PyQt6              (main_qt.py is not the entry of the bundle)
+#   - pytest             (test framework, never executed inside the .exe)
+#   - pyaudio            (mic input only — kept optional, install separately
+#                         if voice input is needed; without it edge-tts and
+#                         playback still work)
+#
+# Critical: torch is installed in CPU-only flavor (no CUDA), which divides
+# the bundle size by ~6 (4.5 GB -> ~600 MB). Inference takes 0.5 ms on CPU
+# anyway; the GPU was only useful for training.
+
+opencv-python>=4.8.0
+mediapipe>=0.10.0
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch>=2.0.0
+numpy>=1.24.0
+pyttsx3>=2.90
+edge-tts
+SpeechRecognition>=3.10.0
+Pillow>=10.0.0
+pyserial>=3.5
+pyinstaller>=6.0
