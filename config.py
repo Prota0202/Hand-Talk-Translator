@@ -32,7 +32,7 @@ GLOSS_ALIASES: dict[str, str] = {
     "etudiant": "ETUDIANT",
 }
 
-# Protocole signeur 2 (enfant) : 12 glosses × 5 échantillons.
+# Protocole signeur 2 (petit frère) : 12 glosses × 5 échantillons.
 CROSS_SIGNER_EVAL_SIGNS = [
     "MOI", "NOM", "Bonjour", "2", "4", "ETUDIANT",
     "A", "B", "D", "E", "L", "I",
@@ -46,7 +46,7 @@ CROSS_SIGNER3_SIGNS = [
 # Protocole signeur 4 : meme base que signeur 3 (7 glosses × 5 échantillons).
 CROSS_SIGNER4_SIGNS = list(CROSS_SIGNER3_SIGNS)
 
-# Protocole signeur 5 : identique (7 glosses × 5 échantillons).
+# Protocole signeur 5 (ami, LSF partielle) : 6 glosses communs × 5 échantillons.
 CROSS_SIGNER5_SIGNS = list(CROSS_SIGNER3_SIGNS)
 MODEL_DIR = os.path.join(BASE_DIR, "models")
 MODEL_PATH = os.path.join(MODEL_DIR, "gesture_model.pth")
@@ -215,15 +215,15 @@ TTS = {
 
 SPEAK = {
     "on_commit": False,  # speak after each accepted sign/word
-    "on_space": False,   # speak full phrase when Space is pressed
+    "on_space": True,    # speak full phrase when Space is pressed (main.py)
 }
 
-# ── Finish-phrase gesture (both open palms) ───────────────────────────────────
+# Legacy: finish-phrase via open palms (disabled — use Space in main.py)
 FINISH_GESTURE = {
-    "enabled": True,
+    "enabled": False,
     "required_frames": 3,
     "cooldown_seconds": 2.0,
-    "min_spread": 0.12,  # min distance between index and pinky tips
+    "min_spread": 0.12,
 }
 
 # ── Recommended vocabulary for data collection ───────────────────────────────

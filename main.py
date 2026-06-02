@@ -30,7 +30,6 @@ from config import (
     UNKNOWN_LABEL,
     COMMIT,
     RECOGNITION,
-    FINISH_GESTURE,
     SPEAK,
     STABILITY_FRAMES_REQUIRED,
 )
@@ -186,7 +185,6 @@ def main():
     from hand_detector import HandDetector
     from lsf_translator import translate
     from motion_pause_detector import MotionPauseDetector
-    from motion_spell_detector import MotionSpellDetector
     from sentence_builder import SentenceBuilder
     from speech_engine import SpeechEngine
     from speech_listener import SpeechListener
@@ -202,7 +200,6 @@ def main():
     sentence = SentenceBuilder()
     ui = UIRenderer(sign_labels=recognizer.labels)
     pause_motion = MotionPauseDetector()
-    nod_speak = MotionSpellDetector()
 
     def _read_phrase_aloud() -> None:
         """Translate current glosses and send them to TTS."""
@@ -305,7 +302,6 @@ def main():
     print("  [L]           Afficher / masquer le panneau de latence")
     print("  [E]           Exporter la conversation en .txt")
     print("  [Espace]      Traduire et prononcer la phrase")
-    print("  Hochement     Traduire et lire la phrase (voix)")
     print("  [Retour arr.] Supprimer le dernier signe")
     print("  [Entree]      Effacer la phrase")
     if replay is not None:
@@ -322,8 +318,6 @@ def main():
     pause_available = PAUSE_LABEL in recognizer.labels
     last_commit_ts = 0.0
     last_commit_label = None
-    finish_count = 0
-    last_finish_ts = 0.0
     replay_done_at: float | None = None
 
     # ── Video recording ───────────────────────────────────────────────────
@@ -338,20 +332,6 @@ def main():
         writer = cv2.VideoWriter(path, fourcc, 20.0, (width, height))
         print(f"  Enregistrement demarre : {path}")
         return writer
-
-    def _is_open_palm(hand_landmarks) -> bool:
-        if hand_landmarks is None or len(hand_landmarks) < 21:
-            return False
-        wrist = hand_landmarks[0]
-        tips = [4, 8, 12, 16, 20]
-        # allow some rotation: require 3/5 fingertips above wrist
-        above = sum(1 for i in tips if hand_landmarks[i].y < wrist.y)
-        if above < 3:
-            return False
-        idx_tip = hand_landmarks[8]
-        pinky_tip = hand_landmarks[20]
-        spread = ((idx_tip.x - pinky_tip.x) ** 2 + (idx_tip.y - pinky_tip.y) ** 2) ** 0.5
-        return spread >= FINISH_GESTURE["min_spread"]
 
     try:
         while True:
@@ -460,37 +440,12 @@ def main():
                             })
                             print(f"  [REPLAY MIC] {text}")
 
-            # Finish-phrase gesture: both open palms to camera
-            # (skipped in replay to avoid double-trigger on top of the JSONL)
-            if (replay is None and FINISH_GESTURE.get("enabled", False)
-                    and results.hand_landmarks):
-                hands = results.hand_landmarks
-                both_open = len(hands) >= 2 and _is_open_palm(hands[0]) and _is_open_palm(hands[1])
-                if both_open:
-                    finish_count += 1
-                else:
-                    finish_count = 0
-                if (finish_count >= FINISH_GESTURE["required_frames"] and
-                        time.time() - last_finish_ts >= FINISH_GESTURE["cooldown_seconds"]):
-                    last_finish_ts = time.time()
-                    finish_count = 0
-                    if not sentence.is_empty:
-                        _read_phrase_aloud()
-
             # Motion-based Pause gesture (shake left-right) — skipped in replay
             if replay is None and pause_motion.update(
                 results.hand_landmarks[0] if results.hand_landmarks else None, time.time()
             ):
                 sentence.add_pause()
                 ui.add_history("| PAUSE")
-
-            # Nod (vertical wrist motion) → translate + TTS — skipped in replay
-            if replay is None and nod_speak.update(
-                results.hand_landmarks[0] if results.hand_landmarks else None, time.time()
-            ):
-                if not sentence.is_empty:
-                    _read_phrase_aloud()
-                    ui.add_history("LECTURE VOIX")
 
             # ── Microphone transcription (hearing person → deaf person) ──
             if listen_mode:
@@ -600,11 +555,8 @@ def main():
                     session_log.log_event("reset")
                 print("Historique reinitialise.")
             elif key == ord(" "):
-                if not sentence.is_empty and SPEAK.get("on_space", False):
-                    french = translate(sentence.tokens)
-                    print(f"  LSF:     {sentence.gloss}")
-                    print(f"  Francais: {french}")
-                    _speak(french)
+                if replay is None:
+                    _read_phrase_aloud()
             elif key == 8:  # Backspace
                 removed = sentence.delete_last()
                 if removed:

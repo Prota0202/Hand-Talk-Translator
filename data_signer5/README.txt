@@ -4,9 +4,9 @@ Signeur 5 (cross-signeur)
 5e personne testee avec le modele entraine sur tes donnees (signeur 1).
 Pas de reentrainement.
 
-Autre adulte : signe les gestes de facon plus soignee / plus proche
-de ta demonstration — d'ou un score un peu plus eleve (~29 %) que les
-signeurs 3 et 4 (~9–11 %), sans rendre le systeme utilisable.
+Ami qui parle et pratique un peu la LSF : meilleure execution gestuelle
+que les signeurs 3--4 (gestes appris sur le moment), d'ou le 100 % sur
+le sous-ensemble teste (6 glosses).
 
 Protocole (6 glosses, sans alphabet) :
   MOI, NOM, Bonjour, 2, 4, ETUDIANT

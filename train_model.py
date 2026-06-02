@@ -3,8 +3,8 @@
 Pipeline
 ────────
 1. Load collected .npy samples from  data/<sign>/
-2. Augment with noise, mirror, time-warp, scale  (×8 by default)
-3. Stratified train / test split
+2. Stratified train / validation split on raw sequences (seed 42)
+3. Augment training set only (validation stays raw hold-out)
 4. Build & train the LSTM  (PyTorch)
 5. Evaluate — overall accuracy, per-class report, confusion matrix
 6. Save  →  models/gesture_model.pth  +  models/labels.json
@@ -264,19 +264,25 @@ def main():
     if X is None:
         return
 
-    print(f"\nDataset brut : {len(X)} echantillons, {len(labels)} classes")
+    n_raw = len(X)
+    print(f"\nDataset brut : {n_raw} echantillons, {len(labels)} classes")
 
-    aug = TRAINING["augmentation_factor"]
-    X, y = _augment(X, y, factor=aug, noise_std=TRAINING["noise_std"])
-    print(f"Apres augmentation (x{aug}) : {len(X)} echantillons")
-
-    X_tr, X_te, y_tr, y_te = train_test_split(
+    # Split on raw sequence IDs first (same seed/ratio as evaluate_model.py).
+    X_tr_raw, X_val, y_tr_raw, y_val = train_test_split(
         X, y,
         test_size=TRAINING["validation_split"],
         random_state=42,
         stratify=y,
     )
-    print(f"Train : {len(X_tr)}   Test : {len(X_te)}\n")
+    aug = TRAINING["augmentation_factor"]
+    X_tr, y_tr = _augment(
+        X_tr_raw, y_tr_raw, factor=aug, noise_std=TRAINING["noise_std"],
+    )
+    print(
+        f"Split brut 80/20 : train {len(X_tr_raw)} / val {len(X_val)} "
+        f"(hold-out non augmente)"
+    )
+    print(f"Train apres augmentation (x{aug}) : {len(X_tr)} echantillons\n")
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Device : {device}\n")
@@ -286,8 +292,8 @@ def main():
         TensorDataset(torch.tensor(X_tr), torch.tensor(y_tr, dtype=torch.long)),
         batch_size=bs, shuffle=True,
     )
-    test_loader = DataLoader(
-        TensorDataset(torch.tensor(X_te), torch.tensor(y_te, dtype=torch.long)),
+    val_loader = DataLoader(
+        TensorDataset(torch.tensor(X_val), torch.tensor(y_val, dtype=torch.long)),
         batch_size=bs,
     )
 
@@ -349,7 +355,7 @@ def main():
 
     for epoch in range(1, epochs + 1):
         t_loss, t_acc = _run_epoch(model, train_loader, criterion, optimizer, device)
-        v_loss, v_acc, _, _ = _evaluate(model, test_loader, criterion, device)
+        v_loss, v_acc, _, _ = _evaluate(model, val_loader, criterion, device)
         scheduler.step(v_loss)
         lr = optimizer.param_groups[0]["lr"]
 
@@ -370,7 +376,7 @@ def main():
     es.restore(model)
 
     # final evaluation
-    v_loss, v_acc, y_pred, y_true = _evaluate(model, test_loader, criterion, device)
+    v_loss, v_acc, y_pred, y_true = _evaluate(model, val_loader, criterion, device)
 
     print(f"\n{'=' * 58}")
     print(f"  Precision globale : {v_acc:.1%}")

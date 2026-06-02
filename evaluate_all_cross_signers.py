@@ -32,10 +32,10 @@ from vision_dataset import load_sequences_from_dir, load_training_labels
 
 
 DEFAULT_SIGNERS: list[tuple[str, str]] = [
-    ("Signeur 2 (enfant)", DATA_SIGNER2_DIR),
+    ("Signeur 2 (petit frère)", DATA_SIGNER2_DIR),
     ("Signeur 3 (adulte)", DATA_SIGNER3_DIR),
     ("Signeur 4 (adulte)", DATA_SIGNER4_DIR),
-    ("Signeur 5 (adulte, signes soignés)", DATA_SIGNER5_DIR),
+    ("Signeur 5 (ami, LSF partielle)", DATA_SIGNER5_DIR),
 ]
 
 
@@ -151,10 +151,10 @@ def render_combined_report(
 def render_latex_snippet(results: list[dict]) -> str:
     def profile(name: str) -> str:
         lower = name.lower()
-        if "enfant" in lower:
-            return "enfant"
-        if "soign" in lower:
-            return "adulte, signes soignés"
+        if "petit fr" in lower or "enfant" in lower:
+            return "petit frère"
+        if "lsf" in lower or "ami" in lower:
+            return "ami, pratique partielle LSF"
         if "adulte" in lower:
             return "adulte"
         return "---"
@@ -182,8 +182,8 @@ def render_latex_snippet(results: list[dict]) -> str:
         "    \\caption[Cross-signeur sans réentraînement.]"
         "{Évaluation du modèle entraîné sur le signeur~1, appliqué tel quel "
         "à d'autres personnes (5 échantillons par gloss, sans réentraînement). "
-        "Le signeur~5 obtient un score plus élevé car il exécute les gestes "
-        "plus fidèlement à la démonstration du signeur~1.}",
+        "Le signeur~5 est le seul testeur avec une pratique partielle de la LSF "
+        "(voir section cross-signeur du rapport).}",
         "    \\label{tab:cross-signer}",
         "\\end{table}",
     ])

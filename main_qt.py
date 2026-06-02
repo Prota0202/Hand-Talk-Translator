@@ -536,7 +536,7 @@ class RecognitionWorker(QThread):
 
     def run(self):
         from config import (
-            CAMERA, COMMIT, FINISH_GESTURE, MOTION,
+            CAMERA, COMMIT, MOTION,
             PAUSE_LABEL, RECOGNITION, SPEAK,
             STABILITY_FRAMES_REQUIRED, UNKNOWN_LABEL,
         )
@@ -565,16 +565,8 @@ class RecognitionWorker(QThread):
         fps_t = time.time(); fps = 0.0
         stable_gesture = None; stable_count = 0; committed = False
         last_commit_ts = 0.0;  last_commit_lbl = None
-        finish_count = 0;      last_finish_ts = 0.0
         n_commits = 0
         pause_available = PAUSE_LABEL in recognizer.labels
-
-        def _is_open_palm(lm):
-            if lm is None or len(lm) < 21: return False
-            above = sum(1 for i in [4,8,12,16,20] if lm[i].y < lm[0].y)
-            if above < 3: return False
-            spread = ((lm[8].x-lm[20].x)**2+(lm[8].y-lm[20].y)**2)**0.5
-            return spread >= FINISH_GESTURE["min_spread"]
 
         def _speak_log(text):
             nonlocal n_commits
@@ -656,16 +648,6 @@ class RecognitionWorker(QThread):
                         fn = translate(sentence.tokens)
                         if fn: _speak_log(fn)
                 committed = True
-
-            if FINISH_GESTURE.get("enabled", False) and results.hand_landmarks:
-                hands = results.hand_landmarks
-                both_open = (len(hands)>=2 and _is_open_palm(hands[0]) and _is_open_palm(hands[1]))
-                finish_count = finish_count+1 if both_open else 0
-                if (finish_count >= FINISH_GESTURE["required_frames"]
-                        and now - last_finish_ts >= FINISH_GESTURE["cooldown_seconds"]
-                        and not sentence.is_empty):
-                    last_finish_ts = now; finish_count = 0
-                    _speak_log(translate(sentence.tokens))
 
             if pause_motion.update(
                 results.hand_landmarks[0] if results.hand_landmarks else None, now

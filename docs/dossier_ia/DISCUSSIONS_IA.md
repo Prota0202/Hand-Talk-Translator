@@ -194,7 +194,7 @@ N’utilise pas `py -3.11` quand le venv est activé — utilise `python`.
 
 Ensuite dans le script :
 
-1. 2 → liste des 25 signes
+1. 2 → liste des 16 glosses (protocole cross-signeur)
 2. 8 (ou 5) échantillons
 3. A → mode AUTO
 

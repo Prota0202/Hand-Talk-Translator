@@ -115,15 +115,22 @@ def train(args) -> int:
     if X is None:
         return 1
 
-    X_aug, y_aug = _augment(
-        X, y,
-        factor=1 if args.no_augment else config.GLOVE["augmentation"],
-        noise_std=config.GLOVE["noise_std"],
+    X_tr_raw, X_te, y_tr_raw, y_te = train_test_split(
+        X, y, test_size=0.2, random_state=42, stratify=y,
     )
-    print(f"\nDonnees finales : {X_aug.shape}  (apres augmentation)")
-
-    X_tr, X_te, y_tr, y_te = train_test_split(
-        X_aug, y_aug, test_size=0.2, random_state=42, stratify=y_aug)
+    if args.no_augment:
+        X_tr, y_tr = X_tr_raw, y_tr_raw
+    else:
+        X_tr, y_tr = _augment(
+            X_tr_raw, y_tr_raw,
+            factor=config.GLOVE["augmentation"],
+            noise_std=config.GLOVE["noise_std"],
+        )
+    print(
+        f"\nSplit brut : train {len(X_tr_raw)} / val {len(X_te)} "
+        f"(hold-out non augmente)"
+    )
+    print(f"Train apres augmentation : {X_tr.shape}")
 
     device = torch.device(
         "cuda" if torch.cuda.is_available() and not args.cpu else "cpu")

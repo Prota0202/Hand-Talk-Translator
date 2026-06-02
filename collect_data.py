@@ -302,7 +302,7 @@ def _next_step_hint(data_dir: str) -> str:
     if norm == os.path.normpath(DATA_SIGNER2_DIR):
         return (
             "  Prochaine etape   : python evaluate_cross_signer.py "
-            "--data-dir data_signer2 --signer-name \"Signeur 2 (enfant)\""
+            "--data-dir data_signer2 --signer-name \"Signeur 2 (petit frère)\""
         )
     if norm == os.path.normpath(DATA_SIGNER3_DIR):
         return "  Prochaine etape   : python evaluate_all_cross_signers.py"

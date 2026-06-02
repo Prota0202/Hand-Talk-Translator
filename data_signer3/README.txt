@@ -1,7 +1,7 @@
 Signeur 3 — adulte (cross-signeur)
 ==================================
 
-Qui : une 3e personne (pas toi, pas le signeur 2 enfant).
+Qui : une 3e personne (pas toi, pas le signeur 2 / petit frere).
 Le modele n'est PAS reentraine : on mesure si ton LSTM signeur 1
 generalise chez quelqu'un d'autre.
 

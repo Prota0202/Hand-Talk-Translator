@@ -10,9 +10,9 @@ containing :
 * Inference latency benchmark (per-sample CPU and CUDA, plus batched throughput)
 
 The held-out test set is reconstructed with the exact same
-``random_state=42`` / ``test_size=0.2`` stratified split used by
-``train_model.py``, so the numbers reported here are directly
-comparable to those printed at the end of training.
+``random_state=42`` / ``test_size=0.2`` stratified split on **raw**
+sequences used by ``train_model.py`` (split before augmentation).
+Numbers here match the validation hold-out seen during training.
 
 Usage
 ─────
